@@ -1,0 +1,85 @@
+/* Javascript for QuestionGeneratorXBlock. */
+function QuestionGeneratorXBlock(runtime, xblockElement) {
+	"use strict";
+
+  		
+	var hidden_question_template_element = $(xblockElement).find('input[name=question_template]');
+	var hidden_variables_element = $(xblockElement).find('input[name=variables]');
+	var hidden_generated_variables_element = $(xblockElement).find('input[name=generated_variables]');
+	var hidden_generated_question_element = $(xblockElement).find('input[name=generated_question]');
+	var hidden_generated_answer_element = $(xblockElement).find('input[name=generated_answer]');
+    var xblock_id = $(xblockElement).find('input[name=xblock_id]').val();
+
+	var student_answer_textarea_element = $(xblockElement).find('textarea[name=student_answer]');
+    var teacher_answer_div_element = $(xblockElement).find('div[name=teacher_answer_div]');
+    var show_answer_button = $(xblockElement).find('input[name=show_answer-button]');
+
+
+	function handleSubmissionResult(results) {
+		console.log('handleSubmissionResult INVOKED');
+    	$(xblockElement).find('div[name=attempt-number]').text(results['attempt_number']);
+    	$(xblockElement).find('div[name=problem-progress]').text(results['point_string']);
+    	if (results['submit_disabled'] == 'disabled') {
+    		$(xblockElement).find('input[name=submit-button]').attr('disabled','disabled');
+    	}
+  	}
+  	
+
+  	function handleShowAnswerResult(result) {
+  		console.log('handleShowAnswerResult INVOKED');
+  	
+  		// add "pre" element
+  		var pre_element = $('<pre></pre>');
+  		pre_element.text('Answer:');
+  		answer_div_element.append(pre_element);
+  		
+  		show_answer_button.attr('disabled', 'disabled');
+  	}
+
+
+  	$(xblockElement).find('input[name=submit-button]').bind('click', function() {
+  		// TODO accumulate student's answer for submission
+  		
+    	var data = {
+      		'saved_question_template': hidden_question_template_element.val(),
+      		'serialized_variables': hidden_variables_element.val(),
+      		'serialized_generated_variables': hidden_generated_variables_element.val(),
+      		'saved_generated_question': hidden_generated_question_element.val(),
+      		'saved_generated_answer': hidden_generated_answer_element.val(),
+      		'student_answer': student_answer_textarea_element.val()
+    	};
+    	
+    	
+    	console.log('student_answer: ' + data['student_answer']);
+    	console.log('saved_question_template: ' + data['saved_question_template']);
+    	console.log('serialized_variables: ' + data['saved_variables']);
+    	console.log('serialized_generated_variables: ' + data['saved_generated_variables']);
+    	console.log('saved_generated_question: ' + data['saved_generated_question']);
+    	console.log('saved_generated_answer: ' + data['saved_generated_answer']);
+    	
+    
+    	var handlerUrl = runtime.handlerUrl(xblockElement, 'student_submit');
+    	$.post(handlerUrl, JSON.stringify(data)).success(handleSubmissionResult);
+  	});
+
+  	
+    $(function($) {
+    	console.log("question_generator_block initialized");
+    	if (show_answer_button != null) {
+    		show_answer_button.bind('click', function() {
+    			console.log("show_answer_button CLICKED");
+    			
+    			// prepare data
+    			var data = {
+      				'saved_question_template': hidden_question_template_element.val(),
+		      		'serialized_variables': hidden_variables_element.val(),
+		      		'serialized_generated_variables': hidden_generated_variables_element.val()
+    			}
+    			
+    			var handlerUrl = runtime.handlerUrl(xblockElement, 'show_answer_handler');
+    			$.post(handlerUrl, JSON.stringify(data)).success(handleShowAnswerResult);
+    		});
+    	}
+    });
+  	
+}
