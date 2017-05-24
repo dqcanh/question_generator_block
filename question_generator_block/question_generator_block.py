@@ -79,7 +79,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     
     generated_question = ""
     generated_variables = {}
-    generated_answer = "" # teacher's answer
     
     student_answer = ""
     
@@ -120,7 +119,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         # generate question from template if necessary
         if (self.generated_question == ""):
-            self.generated_question, self.generated_variables, self.generated_answer = qgb_question_service.generate_question(self.question_template, self.variables, self.answer_template)
+            self.generated_question, self.generated_variables = qgb_question_service.generate_question(self.question_template, self.variables)
         
         
         # load submission data to display the previously submitted result
@@ -131,7 +130,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
             # parse the answer
             answer = latest_submission['answer'] # saved "answer information"
             self.generated_question = answer['generated_question']
-            self.generated_answer = answer['generated_answer']  # teacher's generated answer
+#            self.generated_answer = answer['generated_answer']  # teacher's generated answer
             self.student_answer = answer['student_answer'] # student's submitted answer
             
             if ('variable_values' in answer): # backward compatibility
@@ -152,7 +151,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         context['attempt_number'] = self.attempt_number_string
         context['point_string'] = self.point_string
         context['question'] = self.generated_question
-        context['generated_answer'] = self.generated_answer
         context['xblock_id'] = self.xblock_id
         context['show_answer'] = self.show_answer
 
@@ -217,6 +215,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         Save data to context to re-use later to avoid re-accessing the DBMS
         """
         context['saved_question_template'] = self.question_template
+        context['saved_answer_template'] = self.answer_template
         context['serialized_variables'] = json.dumps(self.variables)
         context['serialized_generated_variables'] = json.dumps(self.generated_variables)
     
@@ -226,6 +225,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         De-serialize data previously saved to context
         """
         self.question_template = context['saved_question_template']
+        self.answer_template = context['saved_answer_template']
         self.variables = json.loads(context['serialized_variables'])
         self.generated_variables = json.loads(context['serialized_generated_variables'])
     
@@ -251,11 +251,15 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         points_earned = 10
         
+        # TODO generate the teacher's answer
+        
+        generated_answer = qgb_question_service.generate_answer(self.generated_variables, self.answer_template)
+        
         # save the submission
         submission_data = {
             'generated_question': data['saved_generated_question'],
             'student_answer': data['student_answer'],
-            'generated_answer': data['saved_generated_answer'],
+            'generated_answer': generated_answer,
             'variable_values': data['serialized_generated_variables']
         }
         submission = sub_api.create_submission(self.student_item_key, submission_data)
@@ -358,11 +362,12 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         AJAX handler for "Show/Hide Answer" button
         """
         
-        ## TODO change: show teacher's answer instead
         self.deserialize_data_from_context(data)
         
-        # TODO what to return?
+        generated_answer = qgb_question_service.generate_answer(self.generated_variables, self.answer_template)
+        
         return {
+            'generated_answer': generated_answer
         }
     
     

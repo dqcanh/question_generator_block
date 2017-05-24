@@ -57,7 +57,7 @@ def get_decimal_places(var_decimal_places_int):
     return DECIMAL_PLACES[var_decimal_places_int - 1]
 
 
-def generate_question(question_template, variables, answer_template):
+def generate_question(question_template, variables):
     
     compiled_variable_patterns = {}
     generated_variables = {}
@@ -82,13 +82,24 @@ def generate_question(question_template, variables, answer_template):
     
     # generate the question and answer
     generated_question = question_template
-    generated_answer = answer_template
     for var_name, var_value in generated_variables.iteritems():
         generated_question = compiled_variable_patterns[var_name].sub(str(generated_variables[var_name]), generated_question)
+    
+    
+    return generated_question, generated_variables
+
+
+def generate_answer(generated_variables, answer_template):
+    
+    compiled_variable_patterns = {}
+    for var_name, var_value in generated_variables.iteritems():
+        compiled_variable_patterns[var_name] = re.compile('<' + var_name + '>')
+    
+    generated_answer = answer_template
+    for var_name, var_value in generated_variables.iteritems():
         generated_answer = compiled_variable_patterns[var_name].sub(str(generated_variables[var_name]), generated_answer)
     
-    
-    return generated_question, generated_variables, generated_answer
+    return generated_answer
 
 
 if __name__ == "__main__":
@@ -114,13 +125,16 @@ if __name__ == "__main__":
         'm': m_variable
     }
     
-    answer_template1 = "<n> apples and <m> meters is the answer"
+    answer_template = "<n> apples and <m> meters is the answer"
     
-    generated_question, generated_variables, generated_answer = generate_question(question_template1, variables, answer_template1)
+    generated_question, generated_variables = generate_question(question_template1, variables)
     
     print('test_template1: ' + question_template1)
     print('generated question: ' +  generated_question)
     print 'Generated n: ' + generated_variables['n']
     print 'Generated m: ' + generated_variables['m']
+    
+    
+    generated_answer = generate_answer(generated_variables, answer_template)
     print('generated answer: ' +  generated_answer)
     

@@ -7,7 +7,7 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
 	var hidden_variables_element = $(xblockElement).find('input[name=variables]');
 	var hidden_generated_variables_element = $(xblockElement).find('input[name=generated_variables]');
 	var hidden_generated_question_element = $(xblockElement).find('input[name=generated_question]');
-	var hidden_generated_answer_element = $(xblockElement).find('input[name=generated_answer]');
+	var hidden_answer_template_element = $(xblockElement).find('input[name=answer_template]');
     var xblock_id = $(xblockElement).find('input[name=xblock_id]').val();
 
 	var student_answer_textarea_element = $(xblockElement).find('textarea[name=student_answer]');
@@ -28,24 +28,31 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
   	function handleShowAnswerResult(result) {
   		console.log('handleShowAnswerResult INVOKED');
   	
-  		// add "pre" element
-  		var pre_element = $('<pre></pre>');
-  		pre_element.text('Answer:');
-  		answer_div_element.append(pre_element);
+  		var teacher_answer = result['generated_answer'];
+  		console.log('teacher_answer: ' + teacher_answer);
+
+  		var answer_title_pre_element = $('<pre></pre>');
+  		answer_title_pre_element.text('Answer:');
+  		
+  		var answer_content_prelement = $('<pre></pre>');
+  		answer_content_prelement.text(teacher_answer);
+  		
+  		teacher_answer_div_element.append(answer_title_pre_element);
+  		teacher_answer_div_element.append(answer_content_prelement);
   		
   		show_answer_button.attr('disabled', 'disabled');
   	}
 
 
   	$(xblockElement).find('input[name=submit-button]').bind('click', function() {
-  		// TODO accumulate student's answer for submission
+  		// accumulate student's answer for submission
   		
     	var data = {
       		'saved_question_template': hidden_question_template_element.val(),
       		'serialized_variables': hidden_variables_element.val(),
       		'serialized_generated_variables': hidden_generated_variables_element.val(),
       		'saved_generated_question': hidden_generated_question_element.val(),
-      		'saved_generated_answer': hidden_generated_answer_element.val(),
+      		'saved_answer_template': hidden_answer_template_element.val(),
       		'student_answer': student_answer_textarea_element.val()
     	};
     	
@@ -55,7 +62,7 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
     	console.log('serialized_variables: ' + data['saved_variables']);
     	console.log('serialized_generated_variables: ' + data['saved_generated_variables']);
     	console.log('saved_generated_question: ' + data['saved_generated_question']);
-    	console.log('saved_generated_answer: ' + data['saved_generated_answer']);
+    	console.log('saved_answer_template: ' + data['saved_answer_template']);
     	
     
     	var handlerUrl = runtime.handlerUrl(xblockElement, 'student_submit');
@@ -72,6 +79,7 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
     			// prepare data
     			var data = {
       				'saved_question_template': hidden_question_template_element.val(),
+      				'saved_answer_template': hidden_answer_template_element. val(),
 		      		'serialized_variables': hidden_variables_element.val(),
 		      		'serialized_generated_variables': hidden_generated_variables_element.val()
     			}
