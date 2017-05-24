@@ -22,7 +22,7 @@ def package_data(pkg, roots):
 
 setup(
     name='question_generator_block',
-    version='0.1',
+    version='0.2',
     description='Question Generator XBlock',
     license='LGPL-3.0',
     classifiers=[
