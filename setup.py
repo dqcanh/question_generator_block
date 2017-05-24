@@ -36,8 +36,6 @@ setup(
         'question_generator_block',
     ],
     install_requires=[
-        'XBlock',
-        'xblock-utils'
     ],
     entry_points={
         'xblock.v1': [
