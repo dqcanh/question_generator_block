@@ -21,7 +21,7 @@ def package_data(pkg, roots):
 
 
 setup(
-    name='Question Generator XBlock',
+    name='question_generator_block',
     version='0.1',
     description='Question Generator XBlock',
     license='LGPL-3.0',
