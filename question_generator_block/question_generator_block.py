@@ -71,7 +71,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     xblock_id = None
     newly_created_block = True
     
-    
+    image_url = "http://edx4.vietnamx.org:18010/asset-v1:IU+DemoX+2017_04+type@asset+block@images_logic_gate_sln.png"
     question_template = ""
     variables = {}
     answer_template = ""
@@ -147,6 +147,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         self.serialize_data_to_context(context)    
         
+        context['image_url'] = self.image_url
         context['student_answer'] = self.student_answer
         context['attempt_number'] = self.attempt_number_string
         context['point_string'] = self.point_string
@@ -192,6 +193,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         # (re-)fetch data from the database
         self.load_data_from_dbms()
         # self.serialize_data_to_context(context) ??? REMOVE not necessary, remove 
+        context['image_url'] = self.image_url
         context['question_template'] = self.question_template
         context["variables"] = self.variables
         context['answer_template'] = self.answer_template
