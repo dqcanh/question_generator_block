@@ -171,12 +171,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         # if the XBlock has been submitted already then disable the studio_edit screen
         location = self.location.replace(branch=None, version=None)  # Standardize the key in case it isn't already
         item_id=unicode(location)
-        if qgb_db_service.is_xblock_submitted(item_id):
-            disabled_edit_fragment = Fragment()
-            disabled_edit_fragment.content = loader.render_template('static/html/question_generator_disabled_studio_edit.html', {})
-            disabled_edit_fragment.add_javascript(loader.load_unicode('static/js/src/question_generator_disabled_studio_edit.js'))
-            disabled_edit_fragment.initialize_js('QuestionGeneratorEditXBlock')
-            return disabled_edit_fragment
 
         
         # Student not yet submit then we can edit the XBlock
@@ -201,6 +195,11 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         context['question_template'] = self.question_template
         context["variables"] = self.variables
         context['answer_template'] = self.answer_template
+        
+        if qgb_db_service.is_xblock_submitted(item_id):
+            context['is_submitted'] = 'True'
+        else:
+            context['is_submitted'] = 'False'
         
                 
         fragment.content = loader.render_template('static/html/question_generator_studio_edit.html', context)

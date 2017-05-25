@@ -170,17 +170,22 @@
   
 	<div class="xblock-actions">
 		<ul>
-			<li class="action-item">
-				<a href="#" class="button action-primary save-button" name="save_button">{% trans "Save" %}</a>
-			</li>
+		
+			{% if is_submitted == 'False' %}
+				<li class="action-item">
+					<a href="#" class="button action-primary save-button" name="save_button">{% trans "Save" %}</a>
+				</li>
+			{% endif %}
 
 			<li class="action-item">
 				<a href="#" class="button cancel-button">{% trans "Cancel" %}</a>
 			</li>
 
-			<li name="add_variable" class="action-item">
-				<a href="#" class="button action-primary save-button" name="add_variable_button">Add variable</a>
-			</li>
+			{% if is_submitted == 'False' %}
+				<li name="add_variable" class="action-item">
+					<a href="#" class="button action-primary save-button" name="add_variable_button">Add variable</a>
+				</li>
+			{% endif %}
 		</ul>
 	</div>
 </div>
