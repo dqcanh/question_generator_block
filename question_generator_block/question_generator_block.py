@@ -15,6 +15,7 @@ from sub_api_util import SubmittingXBlockMixin
 from xblockutils.studio_editable import StudioEditableXBlockMixin, FutureFields
 from xblockutils.resources import ResourceLoader
 
+import matlab_service
 import qgb_question_service
 import qgb_db_service
 import json
@@ -67,7 +68,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         default=True,
         scope=Scope.settings)
     
-    
     xblock_id = None
     newly_created_block = True
     
@@ -88,6 +88,9 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     editable_fields = ('display_name', 'max_attempts', 'max_points', 'show_points_earned', 'show_submission_times', 'show_answer')
 
     has_score = True
+    
+    matlab_server_url = "172.18.10.33:8080" # TODO allows user to config MATLAB URL in studio
+    matlab_solver_url = "/solve"  # TODO allows user to config MATLAB URL in studio
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -250,19 +253,27 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         self.deserialize_data_from_context(data)
         
-        points_earned = 10
+        points_earned = 0
         
         # TODO generate the teacher's answer
         
         generated_answer = qgb_question_service.generate_answer(self.generated_variables, self.answer_template)
+        student_answer = data['student_answer']
         
         # save the submission
         submission_data = {
             'generated_question': data['saved_generated_question'],
-            'student_answer': data['student_answer'],
+            'student_answer': student_answer,
             'generated_answer': generated_answer,
             'variable_values': data['serialized_generated_variables']
         }
+        
+        
+        # call matlab
+        evaluation_result = matlab_service.evaluate_matlab_answer(self.matlab_server_url, self.matlab_solver_url, generated_answer, student_answer)
+        if evaluation_result == True:
+            points_earned = self.max_points
+        
         submission = sub_api.create_submission(self.student_item_key, submission_data)
         sub_api.set_score(submission['uuid'], points_earned, self.max_points)
         
