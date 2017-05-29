@@ -1,3 +1,0 @@
-[xblock.v1]
-question_generator_block = question_generator_block:QuestionGeneratorXBlock
-
