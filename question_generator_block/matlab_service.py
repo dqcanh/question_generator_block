@@ -9,6 +9,8 @@ def evaluate_matlab_answer(matlab_server_url, matlab_solver_url, teacherAns, stu
     body = json.dumps({"teacherAns": teacherAns, "studentAns" : studentAns})
     conn.request("POST", matlab_solver_url, body, headers)
     
+    print matlab_server_url + matlab_solver_url
+    
     response = conn.getresponse()
     if response.status == 200:
        result = json.loads(response.read())

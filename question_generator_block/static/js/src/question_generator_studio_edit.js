@@ -13,6 +13,7 @@ function StudioEditableXBlockMixin(runtime, xblockElement) {
     };
     
     var question_template_textarea_element = $(xblockElement).find('textarea[name=question_template]');
+    var url_image_input = $(xblockElement).find('input[name=url_image]');
     var variables_table_element = $(xblockElement).find('table[name=variables_table]');
     var answer_template_textarea_element =  $(xblockElement).find('textarea[name=answer_template]');
     
@@ -176,6 +177,7 @@ function StudioEditableXBlockMixin(runtime, xblockElement) {
         // 1. question_template_textarea_element
         var question_template = question_template_textarea_element.val();
         console.log('question_template: ' + question_template);
+        var url_image = url_image_input.val();
         
         // 2. variables_table_element
         var variables = {};
@@ -257,7 +259,7 @@ function StudioEditableXBlockMixin(runtime, xblockElement) {
         
         // server side validation
         debugger;
-	    studioSubmit({values: fieldValues, defaults: fieldValuesNotSet, question_template: question_template, variables: variables, answer_template: answer_template});
+	    studioSubmit({values: fieldValues, defaults: fieldValuesNotSet, question_template: question_template, url_image: url_image, variables: variables, answer_template: answer_template});
     });
 
 

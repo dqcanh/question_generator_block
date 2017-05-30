@@ -71,7 +71,8 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     xblock_id = None
     newly_created_block = True
     
-    image_url = "http://edx4.vietnamx.org:18010/asset-v1:IU+DemoX+2017_04+type@asset+block@images_logic_gate_sln.png"
+    #image_url = "http://edx4.vietnamx.org:18010/asset-v1:IU+DemoX+2017_04+type@asset+block@images_logic_gate_sln.png"
+    image_url = ""
     question_template = ""
     variables = {}
     answer_template = ""
@@ -87,10 +88,10 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
 
     editable_fields = ('display_name', 'max_attempts', 'max_points', 'show_points_earned', 'show_submission_times', 'show_answer')
 
-    has_score = True
+    has_score = True 
     
     matlab_server_url = "172.18.10.33:8080" # TODO allows user to config MATLAB URL in studio
-    matlab_solver_url = "/solve"  # TODO allows user to config MATLAB URL in studio
+    matlab_solver_url = "/check"  # TODO allows user to config MATLAB URL in studio
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -115,7 +116,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         if (self.newly_created_block is True): # generate question template for newly created XBlock
             self.question_template, self.variables, self.answer_template = qgb_question_service.generate_question_template()
-            qgb_db_service.create_question_template(self.xblock_id, self.question_template, self.variables, self.answer_template)
+            qgb_db_service.create_question_template(self.xblock_id, self.question_template, self.image_url, self.variables, self.answer_template)
             self.newly_created_block = False
         else: # existing question template in dbms
             self.load_data_from_dbms()
@@ -219,6 +220,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         Save data to context to re-use later to avoid re-accessing the DBMS
         """
         context['saved_question_template'] = self.question_template
+        context['saved_url_image'] = self.image_url
         context['saved_answer_template'] = self.answer_template
         context['serialized_variables'] = json.dumps(self.variables)
         context['serialized_generated_variables'] = json.dumps(self.generated_variables)
@@ -229,6 +231,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         De-serialize data previously saved to context
         """
         self.question_template = context['saved_question_template']
+        self.image_url = context['saved_url_image']
         self.answer_template = context['saved_answer_template']
         self.variables = json.loads(context['serialized_variables'])
         self.generated_variables = json.loads(context['serialized_generated_variables'])
@@ -242,7 +245,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         if self.xblock_id is None:
             self.xblock_id = unicode(self.location.replace(branch=None, version=None))
         
-        self.question_template, self.variables, self.answer_template = qgb_db_service.fetch_question_template_data(self.xblock_id)
+        self.question_template, self.image_url, self.variables, self.answer_template = qgb_db_service.fetch_question_template_data(self.xblock_id)
 
 
     @XBlock.json_handler
@@ -301,14 +304,16 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
             self.xblock_id = unicode(self.location.replace(branch=None, version=None))
             
         updated_question_template = data['question_template']
+        updated_url_image = data['url_image']
         updated_variables = data['variables']
         updated_answer_template = data['answer_template']
         
-        qgb_db_service.update_question_template(self.xblock_id, updated_question_template, updated_variables, updated_answer_template)
+        qgb_db_service.update_question_template(self.xblock_id, updated_question_template, updated_url_image, updated_variables, updated_answer_template)
         
     
         # "refresh" XBlock's values
         self.question_template = updated_question_template
+        self.image_url = updated_url_image
         self.variables = updated_variables
         self.answer_template = updated_answer_template
         
