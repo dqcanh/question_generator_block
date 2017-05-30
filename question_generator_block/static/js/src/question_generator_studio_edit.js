@@ -13,7 +13,7 @@ function StudioEditableXBlockMixin(runtime, xblockElement) {
     };
     
     var question_template_textarea_element = $(xblockElement).find('textarea[name=question_template]');
-    var url_image_input = $(xblockElement).find('input[name=url_image]');
+    var url_image_input = $(xblockElement).find('input[name=image_url]');
     var variables_table_element = $(xblockElement).find('table[name=variables_table]');
     var answer_template_textarea_element =  $(xblockElement).find('textarea[name=answer_template]');
     
