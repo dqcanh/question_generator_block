@@ -1,8 +1,10 @@
 CREATE TABLE edxapp.qgb_question_template (
 	id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	xblock_id VARCHAR(255) NOT NULL UNIQUE,
-	template VARCHAR(2048) NOT NULL,
-	answer_template VARCHAR(2048) NOT NULL
+	template VARCHAR(8192) NOT NULL,
+	url_image VARCHAR(8192) NOT NULL,
+	resolver VARCHAR(255) NOT NULL,
+	answer_template VARCHAR(8192) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=40;
 
 CREATE TABLE edxapp.qgb_variable (
