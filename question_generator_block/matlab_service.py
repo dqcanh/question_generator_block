@@ -4,6 +4,7 @@ import json
  
 def evaluate_matlab_answer(matlab_server_url, matlab_solver_url, teacherAns, studentAns):
  
+    print matlab_server_url + matlab_solver_url
     conn = httplib.HTTPConnection(matlab_server_url)
     headers = { "Content-Type": "application/json" }
     body = json.dumps({"teacherAns": teacherAns, "studentAns" : studentAns})

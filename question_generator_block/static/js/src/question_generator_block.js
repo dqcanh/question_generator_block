@@ -5,6 +5,7 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
   		
 	var hidden_question_template_element = $(xblockElement).find('input[name=question_template]');
 	var hidden_url_image = $(xblockElement).find('input[name=image_url]');
+	var hidden_resolver_selection =$(xblockElement).find('input[name=resolver_selection]');
 	var hidden_variables_element = $(xblockElement).find('input[name=variables]');
 	var hidden_generated_variables_element = $(xblockElement).find('input[name=generated_variables]');
 	var hidden_generated_question_element = $(xblockElement).find('input[name=generated_question]');
@@ -51,6 +52,7 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
     	var data = {
       		'saved_question_template': hidden_question_template_element.val(),
       		'saved_url_image': hidden_url_image.val(),
+      		'saved_resolver_selection': hidden_resolver_selection.val(),
       		'serialized_variables': hidden_variables_element.val(),
       		'serialized_generated_variables': hidden_generated_variables_element.val(),
       		'saved_generated_question': hidden_generated_question_element.val(),
@@ -66,6 +68,7 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
     	console.log('saved_generated_question: ' + data['saved_generated_question']);
     	console.log('saved_answer_template: ' + data['saved_answer_template']);
     	console.log('saved_url_image: ' + data['saved_url_image']);
+    	console.log('saved_resolver_selection: ' + data['saved_resolver_selection']);
     	
     
     	var handlerUrl = runtime.handlerUrl(xblockElement, 'student_submit');
@@ -83,6 +86,7 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
     			var data = {
       				'saved_question_template': hidden_question_template_element.val(),
       				'saved_url_image' : hidden_url_image.val(),
+      				'saved_resolver_selection': hidden_resolver_selection.val(),
       				'saved_answer_template': hidden_answer_template_element. val(),
 		      		'serialized_variables': hidden_variables_element.val(),
 		      		'serialized_generated_variables': hidden_generated_variables_element.val()

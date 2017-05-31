@@ -13,8 +13,8 @@ function StudioEditableXBlockMixin(runtime, xblockElement) {
     };
     
     var question_template_textarea_element = $(xblockElement).find('textarea[name=question_template]');
-    var url_image_input = $(xblockElement).find('input[name=image_url]');
     var variables_table_element = $(xblockElement).find('table[name=variables_table]');
+    var url_image_input = $(xblockElement).find('input[name=image_url]');
     var answer_template_textarea_element =  $(xblockElement).find('textarea[name=answer_template]');
     
     var error_message_element = $(xblockElement).find('div[name=error-message]');
@@ -177,7 +177,11 @@ function StudioEditableXBlockMixin(runtime, xblockElement) {
         // 1. question_template_textarea_element
         var question_template = question_template_textarea_element.val();
         console.log('question_template: ' + question_template);
-        var url_image = url_image_input.val();
+        var image_url = url_image_input.val();
+        console.log('image_url: ' + image_url);
+        var resolver_element = $(xblockElement).find('input[name=Resolver]:checked');
+        var resolver_selection = resolver_element.val();
+        console.log('resolver_selection: ' + resolver_selection);
         
         // 2. variables_table_element
         var variables = {};
@@ -259,7 +263,7 @@ function StudioEditableXBlockMixin(runtime, xblockElement) {
         
         // server side validation
         debugger;
-	    studioSubmit({values: fieldValues, defaults: fieldValuesNotSet, question_template: question_template, url_image: url_image, variables: variables, answer_template: answer_template});
+	    studioSubmit({values: fieldValues, defaults: fieldValuesNotSet, question_template: question_template, image_url: image_url, resolver_selection: resolver_selection, variables: variables, answer_template: answer_template});
     });
 
 

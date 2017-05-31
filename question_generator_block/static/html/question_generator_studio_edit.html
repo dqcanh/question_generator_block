@@ -114,16 +114,34 @@
 					<textarea name="question_template" rows=10 cols=70>{{ question_template }}</textarea>
 	        	</div>
 	        </li>
-	        
 
 	        <li class="field comp-setting-entry metadata_entry">
 				<div class="wrapper-comp-setting">
 					<label class="label setting-label" for="image_url">Image</label>
-					<input name="image_url" type="text" class="field-data-control" id="xb-field-edit-image" value="{{ image_url }}">
+					<input name="image_url" type="text" class="field-data-control" id="xb-field-edit-image" value="{{ image_url }}" />
 	        	</div>
 			</li>
-
-	        
+			
+			<li class="field comp-setting-entry metadata_entry">
+				<div class="wrapper-comp-setting">
+					<label class="label setting-label" for="resolver_selection">Resovler Machine</label><br>
+					<form>
+					  	<label class="label setting-label" for="id1">None</label>
+					  	<input type="radio" name="Resolver" value="none" id="id1"
+					  	{% if resolver_selection == "none" %} checked {% endif %} />
+					  	<br>
+  						<label class="label setting-label" for="id2">Matlab</label>
+  						<!--This is a comment. Comments are not displayed in the browser-->
+  						<input type="radio" name="Resolver" value="matlab" id="id2" 
+  						{% if resolver_selection == "matlab" %} checked {% endif %} />
+  						<br>
+  						<label class="label setting-label" for="id3">Excel</label>
+  						<input type="radio" name="Resolver" value="excel" id="id3" 
+  						{% if resolver_selection == "excel" %} checked {% endif %} />
+  						<br>  
+  					</form>
+	        	</div>
+	        </li>
 
 	        <li
 	          class="field comp-setting-entry metadata_entry"

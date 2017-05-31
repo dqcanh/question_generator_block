@@ -19,6 +19,7 @@ import matlab_service
 import qgb_question_service
 import qgb_db_service
 import json
+from resolver_machine import resolver_machine
 
 # import xblock_deletion_handler
 
@@ -73,6 +74,8 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     
     #image_url = "http://edx4.vietnamx.org:18010/asset-v1:IU+DemoX+2017_04+type@asset+block@images_logic_gate_sln.png"
     image_url = ""
+    resolver_handling = resolver_machine()
+    resolver_selection = resolver_handling.getDefaultResolver()
     question_template = ""
     variables = {}
     answer_template = ""
@@ -89,9 +92,12 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     editable_fields = ('display_name', 'max_attempts', 'max_points', 'show_points_earned', 'show_submission_times', 'show_answer')
 
     has_score = True 
+    matlab_server_url = resolver_handling.getDefaultAddress()
+    matlab_solver_url = resolver_handling.getDefaultURL()
+    print "tammd " + matlab_server_url + matlab_solver_url + resolver_selection
     
-    matlab_server_url = "172.18.10.33:8080" # TODO allows user to config MATLAB URL in studio
-    matlab_solver_url = "/check"  # TODO allows user to config MATLAB URL in studio
+    #matlab_server_url = "172.18.10.33:8080" # TODO allows user to config MATLAB URL in studio
+    #matlab_solver_url = "/check"  # TODO allows user to config MATLAB URL in studio
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -116,7 +122,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         if (self.newly_created_block is True): # generate question template for newly created XBlock
             self.question_template, self.variables, self.answer_template = qgb_question_service.generate_question_template()
-            qgb_db_service.create_question_template(self.xblock_id, self.question_template, self.image_url, self.variables, self.answer_template)
+            qgb_db_service.create_question_template(self.xblock_id, self.question_template, self.image_url, self.resolver_selection, self.variables, self.answer_template)
             self.newly_created_block = False
         else: # existing question template in dbms
             self.load_data_from_dbms()
@@ -151,7 +157,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         self.serialize_data_to_context(context)    
         
-        context['image_url'] = self.image_url
         context['student_answer'] = self.student_answer
         context['attempt_number'] = self.attempt_number_string
         context['point_string'] = self.point_string
@@ -198,9 +203,11 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         self.load_data_from_dbms()
         # self.serialize_data_to_context(context) ??? REMOVE not necessary, remove 
         context['image_url'] = self.image_url
+        context['resolver_selection'] = self.resolver_selection
         context['question_template'] = self.question_template
         context["variables"] = self.variables
         context['answer_template'] = self.answer_template
+        print "Tammd 77777" + context['resolver_selection']
         
         if qgb_db_service.is_xblock_submitted(item_id):
             context['is_submitted'] = 'True'
@@ -221,6 +228,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         """
         context['saved_question_template'] = self.question_template
         context['saved_url_image'] = self.image_url
+        context['saved_resolver_selection'] = self.resolver_selection
         context['saved_answer_template'] = self.answer_template
         context['serialized_variables'] = json.dumps(self.variables)
         context['serialized_generated_variables'] = json.dumps(self.generated_variables)
@@ -232,6 +240,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         """
         self.question_template = context['saved_question_template']
         self.image_url = context['saved_url_image']
+        self.resolver_selection = context['saved_resolver_selection']
         self.answer_template = context['saved_answer_template']
         self.variables = json.loads(context['serialized_variables'])
         self.generated_variables = json.loads(context['serialized_generated_variables'])
@@ -245,7 +254,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         if self.xblock_id is None:
             self.xblock_id = unicode(self.location.replace(branch=None, version=None))
         
-        self.question_template, self.image_url, self.variables, self.answer_template = qgb_db_service.fetch_question_template_data(self.xblock_id)
+        self.question_template, self.image_url, self.resolver_selection, self.variables, self.answer_template = qgb_db_service.fetch_question_template_data(self.xblock_id)
 
 
     @XBlock.json_handler
@@ -270,13 +279,14 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
             'generated_answer': generated_answer,
             'variable_values': data['serialized_generated_variables']
         }
-        
+        print "Tammd resolver_selection " + self.resolver_selection
         
         # call matlab
-        evaluation_result = matlab_service.evaluate_matlab_answer(self.matlab_server_url, self.matlab_solver_url, generated_answer, student_answer)
+        evaluation_result = self.resolver_handling.syncCall(self.resolver_selection, generated_answer, student_answer )
+        #evaluation_result = matlab_service.evaluate_matlab_answer(self.matlab_server_url, self.matlab_solver_url, generated_answer, student_answer)
         if evaluation_result == True:
             points_earned = self.max_points
-        
+        print points_earned
         submission = sub_api.create_submission(self.student_item_key, submission_data)
         sub_api.set_score(submission['uuid'], points_earned, self.max_points)
         
@@ -304,16 +314,21 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
             self.xblock_id = unicode(self.location.replace(branch=None, version=None))
             
         updated_question_template = data['question_template']
-        updated_url_image = data['url_image']
+        updated_url_image = data['image_url']
+        updated_resolver_selection = data['resolver_selection']
+        print "Tammd 11111" + "  " + data['resolver_selection']
         updated_variables = data['variables']
         updated_answer_template = data['answer_template']
         
-        qgb_db_service.update_question_template(self.xblock_id, updated_question_template, updated_url_image, updated_variables, updated_answer_template)
+        qgb_db_service.update_question_template(self.xblock_id, updated_question_template, updated_url_image, updated_resolver_selection, updated_variables, updated_answer_template)
         
     
         # "refresh" XBlock's values
         self.question_template = updated_question_template
         self.image_url = updated_url_image
+        print "Tammd 222" + "  " + self.image_url
+        self.resolver_selection = updated_resolver_selection
+        print "Tammd 222" + "  " + self.resolver_selection
         self.variables = updated_variables
         self.answer_template = updated_answer_template
         
