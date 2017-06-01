@@ -4,7 +4,7 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
 
   		
 	var hidden_question_template_element = $(xblockElement).find('input[name=question_template]');
-	var hidden_url_image = $(xblockElement).find('input[name=saved_image_url]');
+	var hidden_url_image = $(xblockElement).find('input[name=image_url]');
 	var hidden_resolver_selection =$(xblockElement).find('input[name=resolver_selection]');
 	var hidden_variables_element = $(xblockElement).find('input[name=variables]');
 	var hidden_generated_variables_element = $(xblockElement).find('input[name=generated_variables]');
