@@ -157,6 +157,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         self.serialize_data_to_context(context)    
         
         context['student_answer'] = self.student_answer
+        context['image_url'] = self.image_url
         context['attempt_number'] = self.attempt_number_string
         context['point_string'] = self.point_string
         context['question'] = self.generated_question
