@@ -6,17 +6,26 @@ class resolver_machine():
     APIAddress = Constants(
         NONE="", 
         MATLAB="120.72.83.82:8080", 
-        EXCEL="120.72.83.82:8080",
+        EXCEL="",
+        CPLUSPLUS="",
+        JAVA="",
+        CSHARP="",
         Default="")
     APIURL = Constants(
         NONE="/none", 
         MATLAB="/check",
-        EXCEL="/check",
+        EXCEL="/none",
+        CPLUSPLUS="/none",
+        JAVA="/none",
+        CSHARP="/none",
         Default="/none")
     NAME = Constants(
         NONE="none", 
         MATLAB="matlab",
         EXCEL="excel",
+        CPLUSPLUS="c++",
+        JAVA="java",
+        CSHARP="c#",
         Default="none")
     def getResolverAddress(self, query):
         if query == self.APIAddress.MATLAB:
@@ -33,11 +42,11 @@ class resolver_machine():
         else:
             return self.APIURL.NONE
     def getDefaultAddress(self):
-        return self.APIAddress.MATLAB
+        return self.APIAddress.NONE
     def getDefaultURL(self):
-        return self.APIURL.MATLAB
+        return self.APIURL.NONE
     def getDefaultResolver(self):
-        return self.NAME.MATLAB
+        return self.NAME.NONE
     def syncCall(self, resolver, ansT, ans):
         callback = False
         if resolver == self.NAME.NONE:

@@ -94,7 +94,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     has_score = True 
     matlab_server_url = resolver_handling.getDefaultAddress()
     matlab_solver_url = resolver_handling.getDefaultURL()
-    print "tammd " + matlab_server_url + matlab_solver_url + resolver_selection
     
     #matlab_server_url = "172.18.10.33:8080" # TODO allows user to config MATLAB URL in studio
     #matlab_solver_url = "/check"  # TODO allows user to config MATLAB URL in studio
@@ -207,7 +206,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         context['question_template'] = self.question_template
         context["variables"] = self.variables
         context['answer_template'] = self.answer_template
-        print "Tammd 77777" + context['resolver_selection']
         
         if qgb_db_service.is_xblock_submitted(item_id):
             context['is_submitted'] = 'True'
@@ -279,14 +277,12 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
             'generated_answer': generated_answer,
             'variable_values': data['serialized_generated_variables']
         }
-        print "Tammd resolver_selection " + self.resolver_selection
         
         # call matlab
         evaluation_result = self.resolver_handling.syncCall(self.resolver_selection, generated_answer, student_answer )
         #evaluation_result = matlab_service.evaluate_matlab_answer(self.matlab_server_url, self.matlab_solver_url, generated_answer, student_answer)
         if evaluation_result == True:
             points_earned = self.max_points
-        print points_earned
         submission = sub_api.create_submission(self.student_item_key, submission_data)
         sub_api.set_score(submission['uuid'], points_earned, self.max_points)
         
@@ -316,7 +312,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         updated_question_template = data['question_template']
         updated_url_image = data['image_url']
         updated_resolver_selection = data['resolver_selection']
-        print "Tammd 11111" + "  " + data['resolver_selection']
         updated_variables = data['variables']
         updated_answer_template = data['answer_template']
         
@@ -326,9 +321,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         # "refresh" XBlock's values
         self.question_template = updated_question_template
         self.image_url = updated_url_image
-        print "Tammd 222" + "  " + self.image_url
         self.resolver_selection = updated_resolver_selection
-        print "Tammd 222" + "  " + self.resolver_selection
         self.variables = updated_variables
         self.answer_template = updated_answer_template
         
