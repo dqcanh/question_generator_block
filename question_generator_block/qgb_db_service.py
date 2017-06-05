@@ -55,7 +55,7 @@ def fetch_question_template_data(xblock_id):
     variables = {}
     
     # query question_template
-    question_template_query = "SELECT template, url_image, resolver, answer_template FROM binami_edx.qgb_question_template where xblock_id = '" + xblock_id + "'"
+    question_template_query = "SELECT template, url_image, resolver, answer_template FROM bitnami_edx.qgb_question_template where xblock_id = '" + xblock_id + "'"
     print question_template_query
     question_template_cursor = connection.cursor()
     question_template_cursor.execute(question_template_query)
@@ -71,7 +71,7 @@ def fetch_question_template_data(xblock_id):
     
     
     # query variables
-    variable_query = "SELECT name, type, min_value, max_value, type, decimal_places FROM binami_edx.qgb_variable WHERE xblock_id = '" + xblock_id + "'"
+    variable_query = "SELECT name, type, min_value, max_value, type, decimal_places FROM bitnami_edx.qgb_variable WHERE xblock_id = '" + xblock_id + "'"
     variable_query_cursor = connection.cursor()
     variable_query_cursor.execute(variable_query)
     row = variable_query_cursor.fetchone()
@@ -105,7 +105,7 @@ def clean_up_variables_and_expressions(xblock_id, connection):
     cursor = connection.cursor()
     
     # remove variables
-    VARIABLES_REMOVE_QUERY = ("DELETE FROM binami_edx.qgb_variable WHERE xblock_id = '" + xblock_id + "'")
+    VARIABLES_REMOVE_QUERY = ("DELETE FROM bitnami_edx.qgb_variable WHERE xblock_id = '" + xblock_id + "'")
     cursor.execute(VARIABLES_REMOVE_QUERY)
     
     cursor.close()
@@ -113,7 +113,7 @@ def clean_up_variables_and_expressions(xblock_id, connection):
 
 def insert_question_template(xblock_id, connection, question_template, image_url, resolver, answer_template):
     cursor = connection.cursor()
-    query = "INSERT INTO binami_edx.qgb_question_template (xblock_id, template, url_image, resolver, answer_template) VALUES ('" + xblock_id + "', '" + question_template + "', '"  + image_url + "', '" + resolver + "', '" +  answer_template + "')"
+    query = "INSERT INTO bitnami_edx.qgb_question_template (xblock_id, template, url_image, resolver, answer_template) VALUES ('" + xblock_id + "', '" + question_template + "', '"  + image_url + "', '" + resolver + "', '" +  answer_template + "')"
     print query
     cursor.execute(query)
     cursor.close()
@@ -125,7 +125,7 @@ def update_question_template_content(xblock_id, connection, question_template, i
     """
     
     cursor = connection.cursor()
-    query = "UPDATE binami_edx.qgb_question_template SET template = '" + question_template + "', url_image = '" + image_url + "', resolver = '" + resolver + "', answer_template = '" + answer_template + "' WHERE xblock_id = '" + xblock_id + "'"
+    query = "UPDATE bitnami_edx.qgb_question_template SET template = '" + question_template + "', url_image = '" + image_url + "', resolver = '" + resolver + "', answer_template = '" + answer_template + "' WHERE xblock_id = '" + xblock_id + "'"
     print query
     cursor.execute(query)
     cursor.close()
@@ -137,7 +137,7 @@ def create_variables(xblock_id, connection, updated_variables):
     """
     
     cursor = connection.cursor()
-    query = "INSERT INTO binami_edx.qgb_variable (xblock_id, name, type, min_value, max_value, decimal_places) VALUES (%s, %s, %s, %s, %s, %s)"
+    query = "INSERT INTO bitnami_edx.qgb_variable (xblock_id, name, type, min_value, max_value, decimal_places) VALUES (%s, %s, %s, %s, %s, %s)"
     print query
     for variable_name, variable in updated_variables.iteritems():
         updated_variable_data = (xblock_id, variable_name, variable['type'], variable['min_value'], variable['max_value'], variable['decimal_places'])
@@ -150,7 +150,7 @@ def is_block_in_db(xblock_id):
     
     connection = mysql.connector.connect(**s.database)
     
-    query = "SELECT id FROM binami_edx.qgb_question_template WHERE xblock_id = '" + xblock_id + "'"
+    query = "SELECT id FROM bitnami_edx.qgb_question_template WHERE xblock_id = '" + xblock_id + "'"
     print query
     cursor = connection.cursor()
     cursor.execute(query)
@@ -166,7 +166,7 @@ def delete_xblock(xblock_id):
     
     connection = mysql.connector.connect(**s.database)
     
-    delete_query_str = "DELETE FROM binami_edx.qgb_question_template WHERE xblock_id like '%" + xblock_id + "%'"
+    delete_query_str = "DELETE FROM bitnami_edx.qgb_question_template WHERE xblock_id like '%" + xblock_id + "%'"
     cursor = connection.cursor()
     cursor.execute(delete_query_str)
     
@@ -180,12 +180,12 @@ def is_xblock_submitted(item_id):
     # 1. TABLE submissions_studentitem(id)
     # 2. TABLE submissions_submission(student_item_id)
     """
-    SELECT count(*) FROM binami_edx.submissions_submission WHERE student_item_id IN (SELECT id FROM binami_edx.submissions_studentitem WHERE item_id = item_id )
+    SELECT count(*) FROM bitnami_edx.submissions_submission WHERE student_item_id IN (SELECT id FROM bitnami_edx.submissions_studentitem WHERE item_id = item_id )
     """
     
     is_submitted = False
     
-    query = "SELECT count(*) FROM binami_edx.submissions_submission WHERE student_item_id IN (SELECT id FROM binami_edx.submissions_studentitem WHERE item_id = '" + item_id + "')"
+    query = "SELECT count(*) FROM bitnami_edx.submissions_submission WHERE student_item_id IN (SELECT id FROM bitnami_edx.submissions_studentitem WHERE item_id = '" + item_id + "')"
     connection = mysql.connector.connect(**s.database)
     cursor = connection.cursor()
     cursor.execute(query)
