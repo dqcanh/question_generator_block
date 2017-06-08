@@ -3,7 +3,7 @@
 import pkg_resources
 
 from xblock.core import XBlock
-from xblock.fields import Scope, JSONField, Integer, String, Boolean
+from xblock.fields import Scope, JSONField, Integer, String, Boolean, Dict
 from xblock.fragment import Fragment
 
 from xblock.exceptions import JsonHandlerError, NoSuchViewError
@@ -68,6 +68,49 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         help="Defines when to show the 'Show/Hide Answer' button",
         default=True,
         scope=Scope.settings)
+    _image_url = String (
+        display_name ="image",
+        help ="",
+        default="",
+        scope = Scope.settings)
+    
+    _resolver_selection = String(
+        display_name = "Resolver Machine",
+        help ="",
+        default = '/none',
+        scope = Scope.content)
+    
+    _question_template = String (
+        display_name = "Question Template",
+        help = "",
+        default = "Given a = <a> and b = <b>. Calculate the sum, difference of a and b.",
+        scope = Scope.settings)
+    _answer_template = String (
+        display_name = "Answer Template",
+        help = "Teacher has to fill the answer here!!!",
+        default = "x =<a> + <b>",
+        scope = Scope.settings)
+    _variables = Dict (
+        display_name = "Variable List",
+        help = "",
+        default = 
+            {
+                'a': {'name': 'a',
+                'min_value': 0,
+                'max_value': 10,
+                'type': 'int',
+                'decimal_places': 2
+                } , 
+                'b' :{'name': 'b',
+                'min_value': 10,
+                'max_value': 20,
+                'type': 'int',
+                'decimal_places': 2
+                }
+            },
+        scope = Scope.settings)
+           
+
     
     xblock_id = None
     newly_created_block = True
@@ -89,7 +132,10 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     attempt_number = 0
     
 
-    editable_fields = ('display_name', 'max_attempts', 'max_points', 'show_points_earned', 'show_submission_times', 'show_answer')
+    editable_fields = ('display_name', 'max_attempts', 'max_points', 'show_points_earned', 
+                       'show_submission_times', 'show_answer', 
+                       '_image_url', '_resolver_selection',
+                       '_question_template', '_answer_template', '_variables')
 
     has_score = True 
     matlab_server_url = resolver_handling.getDefaultAddress()
@@ -104,33 +150,40 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         return data.decode("utf8")
 
 
-    def student_view(self, context=None):
+    def student_view(self, context):
         """
         The primary view of the QuestionGeneratorXBlock, shown to students when viewing courses.
         """
 
-        context = {}
+        context = context
         
         if self.xblock_id is None:
             self.xblock_id = unicode(self.location.replace(branch=None, version=None))
+        print "Tammd 2" + self._question_template
+        print "Tammd 3" + self._image_url
+        print "Tammd 4" + self._resolver_selection
+        self.variables = self._variables
         
         
-        if self.newly_created_block:
-            self.newly_created_block =  (qgb_db_service.is_block_in_db(self.xblock_id) is False)
         
         
-        if (self.newly_created_block is True): # generate question template for newly created XBlock
-            self.question_template, self.variables, self.answer_template = qgb_question_service.generate_question_template()
-            qgb_db_service.create_question_template(self.xblock_id, self.question_template, self.image_url, self.resolver_selection, self.variables, self.answer_template)
-            self.newly_created_block = False
-        else: # existing question template in dbms
-            self.load_data_from_dbms()
+        #if self.newly_created_block:
+         #   self.newly_created_block =  (qgb_db_service.is_block_in_db(self.xblock_id) is False)
+        #self.variables = self._variables
+        if self._question_template != "":
+            
+            #if (self.newly_created_block is True): # generate question template for newly created XBlock
+                self.question_template, self.variables, self.answer_template = qgb_question_service.generate_question_template()
+                #qgb_db_service.create_question_template(self.xblock_id, self.question_template, self.image_url, self.resolver_selection, self.variables, self.answer_template)
+                self.newly_created_block = False
+            #else: # existing question template in dbms
+                #self.load_data_from_dbms()
         
         # generate question from template if necessary
-        if (self.generated_question == ""):
-            self.generated_question, self.generated_variables = qgb_question_service.generate_question(self.question_template, self.variables)
+        #if (self.generated_question == ""):
+        self.generated_question, self.generated_variables = qgb_question_service.generate_question(self._question_template, self._variables)
         
-        
+        print "Tammmd " + self.generated_question
         # load submission data to display the previously submitted result
         submissions = sub_api.get_submissions(self.student_item_key, 1)
         if submissions:
@@ -157,7 +210,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         self.serialize_data_to_context(context)    
         
         context['student_answer'] = self.student_answer
-        context['image_url'] = self.image_url
+        context['image_url'] = self._image_url
         context['attempt_number'] = self.attempt_number_string
         context['point_string'] = self.point_string
         context['question'] = self.generated_question
@@ -198,15 +251,13 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
             if field_info is not None:
                 context["fields"].append(field_info)
                 
-        
-        # (re-)fetch data from the database
-        self.load_data_from_dbms()
+
         # self.serialize_data_to_context(context) ??? REMOVE not necessary, remove 
-        context['image_url'] = self.image_url
-        context['resolver_selection'] = self.resolver_selection
-        context['question_template'] = self.question_template
-        context["variables"] = self.variables
-        context['answer_template'] = self.answer_template
+        context['image_url'] = self._image_url
+        context['resolver_selection'] = self._resolver_selection
+        context['question_template'] = self._question_template
+        context["variables"] = self._variables
+        context['answer_template'] = self._answer_template
         
         if qgb_db_service.is_xblock_submitted(item_id):
             context['is_submitted'] = 'True'
@@ -225,11 +276,11 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         """
         Save data to context to re-use later to avoid re-accessing the DBMS
         """
-        context['saved_question_template'] = self.question_template
-        context['saved_url_image'] = self.image_url
-        context['saved_resolver_selection'] = self.resolver_selection
-        context['saved_answer_template'] = self.answer_template
-        context['serialized_variables'] = json.dumps(self.variables)
+        context['saved_question_template'] = self._question_template
+        context['saved_url_image'] = self._image_url
+        context['saved_resolver_selection'] = self._resolver_selection
+        context['saved_answer_template'] = self._answer_template
+        context['serialized_variables'] = json.dumps(self._variables)
         context['serialized_generated_variables'] = json.dumps(self.generated_variables)
     
     
@@ -316,7 +367,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         updated_variables = data['variables']
         updated_answer_template = data['answer_template']
         
-        qgb_db_service.update_question_template(self.xblock_id, updated_question_template, updated_url_image, updated_resolver_selection, updated_variables, updated_answer_template)
+        #qgb_db_service.update_question_template(self.xblock_id, updated_question_template, updated_url_image, updated_resolver_selection, updated_variables, updated_answer_template)
         
     
         # "refresh" XBlock's values
@@ -325,6 +376,12 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         self.resolver_selection = updated_resolver_selection
         self.variables = updated_variables
         self.answer_template = updated_answer_template
+        setattr(self, '_image_url', updated_url_image)
+        setattr(self, '_resolver_selection', updated_resolver_selection)
+        setattr(self, '_question_template', updated_question_template)
+        setattr(self, '_answer_template', updated_answer_template)
+        setattr(self, '_variables', updated_variables)
+        print "Tammd 222 " + self._question_template
         
         # call parent method
         # StudioEditableXBlockMixin.submit_studio_edits(self, data, suffix)
@@ -336,11 +393,16 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         to_reset = []  # list of field names to delete from this XBlock
         for field_name in self.editable_fields:
             field = self.fields[field_name]
+            print "Tammd wants to know " + field_name
             if field_name in data['values']:
                 if isinstance(field, JSONField):
                     values[field_name] = field.from_json(data['values'][field_name])
                 else:
                     raise JsonHandlerError(400, "Unsupported field type: {}".format(field_name))
+            #elif field_name == '_image_url':
+            #   values[field_name] = data['image_url']
+            #elif field_name == '_resolver_selection' :
+            #    values[field_name] = data['resolver_selection']
             elif field_name in data['defaults'] and field.is_set_on(self):
                 to_reset.append(field_name)
         self.clean_studio_edits(values)
@@ -390,7 +452,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         self.deserialize_data_from_context(data)
         
-        generated_answer = qgb_question_service.generate_answer(self.generated_variables, self.answer_template)
+        generated_answer = qgb_question_service.generate_answer(self.generated_variables, self._answer_template)
         
         return {
             'generated_answer': generated_answer
