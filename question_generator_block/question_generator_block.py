@@ -366,10 +366,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         updated_resolver_selection = data['resolver_selection']
         updated_variables = data['variables']
         updated_answer_template = data['answer_template']
-        _data = {
-            '_image_url':updated_url_image ,
-            '_resolver_selection' : updated_resolver_selection
-        }
         
         #qgb_db_service.update_question_template(self.xblock_id, updated_question_template, updated_url_image, updated_resolver_selection, updated_variables, updated_answer_template)
         
@@ -403,11 +399,10 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
                     values[field_name] = field.from_json(data['values'][field_name])
                 else:
                     raise JsonHandlerError(400, "Unsupported field type: {}".format(field_name))
-            elif field_name in ['_image_url', '_resolver_selection']:
-                if isinstance(field, JSONField):
-                    values[field_name] = _data[field_name]
-                else:
-                    raise JsonHandlerError(400, "Unsupported field type: {}".format(field_name))
+            #elif field_name == '_image_url':
+            #   values[field_name] = data['image_url']
+            #elif field_name == '_resolver_selection' :
+            #    values[field_name] = data['resolver_selection']
             elif field_name in data['defaults'] and field.is_set_on(self):
                 to_reset.append(field_name)
         self.clean_studio_edits(values)
