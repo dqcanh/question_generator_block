@@ -77,7 +77,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     _resolver_selection = String(
         display_name = "Resolver Machine",
         help ="",
-        default = '/none',
+        default = 'none',
         scope = Scope.content)
     
     _question_template = String (
@@ -159,9 +159,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         if self.xblock_id is None:
             self.xblock_id = unicode(self.location.replace(branch=None, version=None))
-        print "Tammd 2" + self._question_template
-        print "Tammd 3" + self._image_url
-        print "Tammd 4" + self._resolver_selection
         self.variables = self._variables
         
         
@@ -183,7 +180,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         #if (self.generated_question == ""):
         self.generated_question, self.generated_variables = qgb_question_service.generate_question(self._question_template, self._variables)
         
-        print "Tammmd " + self.generated_question
         # load submission data to display the previously submitted result
         submissions = sub_api.get_submissions(self.student_item_key, 1)
         if submissions:
@@ -381,7 +377,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         setattr(self, '_question_template', updated_question_template)
         setattr(self, '_answer_template', updated_answer_template)
         setattr(self, '_variables', updated_variables)
-        print "Tammd 222 " + self._question_template
         
         # call parent method
         # StudioEditableXBlockMixin.submit_studio_edits(self, data, suffix)
@@ -393,7 +388,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         to_reset = []  # list of field names to delete from this XBlock
         for field_name in self.editable_fields:
             field = self.fields[field_name]
-            print "Tammd wants to know " + field_name
             if field_name in data['values']:
                 if isinstance(field, JSONField):
                     values[field_name] = field.from_json(data['values'][field_name])

@@ -60,7 +60,6 @@ def fetch_question_template_data(xblock_id):
     question_template_cursor = connection.cursor()
     question_template_cursor.execute(question_template_query)
     row = question_template_cursor.fetchone()
-    print row[0] + row[1] + row[2] + row[3]
     
     if row is not None:
         question_template = row[0]
