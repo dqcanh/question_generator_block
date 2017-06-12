@@ -157,6 +157,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         
         if self.xblock_id is None:
             self.xblock_id = unicode(self.location.replace(branch=None, version=None))
+        should_disbled = ''
 
         
         # generate question from template if necessary
@@ -180,13 +181,11 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
                 
             self.attempt_number = latest_submission['attempt_number']
             if (self.attempt_number >= self.max_attempts):
-                context['disabled'] = 'disabled'
-            else:
-                context['disabled'] = ''
+                should_disbled = 'disabled'
 
         
-        self.serialize_data_to_context(context)    
-        
+        self.serialize_data_to_context(context)   
+        context['disabled'] = should_disbled         
         context['student_answer'] = self.student_answer
         context['image_url'] = self._image_url
         context['attempt_number'] = self.attempt_number_string
