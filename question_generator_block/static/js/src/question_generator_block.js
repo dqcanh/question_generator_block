@@ -21,8 +21,13 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
 		console.log('handleSubmissionResult INVOKED');
     	$(xblockElement).find('div[name=attempt-number]').text(results['attempt_number']);
     	$(xblockElement).find('div[name=problem-progress]').text(results['point_string']);
+    	$(xblockElement).find('input[name=submit-button]').val("Submit")
     	if (results['submit_disabled'] == 'disabled') {
     		$(xblockElement).find('input[name=submit-button]').attr('disabled','disabled');
+    	}
+    	else
+    	{
+    		$(xblockElement).find('input[name=submit-button]').removeAttr('disabled'); 
     	}
   	}
   	
@@ -70,7 +75,8 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
     	console.log('saved_url_image: ' + data['saved_url_image']);
     	console.log('saved_resolver_selection: ' + data['saved_resolver_selection']);
     	
-    
+        $(xblockElement).find('input[name=submit-button]').attr('disabled','disabled'); 
+        $(xblockElement).find('input[name=submit-button]').val("Submitting")
     	var handlerUrl = runtime.handlerUrl(xblockElement, 'student_submit');
     	$.post(handlerUrl, JSON.stringify(data)).success(handleSubmissionResult);
   	});
