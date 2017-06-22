@@ -8,8 +8,8 @@ function StudioEditableXBlockMixin(runtime, xblockElement) {
 
     var csxColor = ["#009FE6", "black"];
     var studio_buttons = {
-        "general_information-tab": "General information",
-        "question_template-tab": "Template",
+        "general_information-tab": "SETTINGS",
+        "question_template-tab": "TEMPLATE",
     };
     
     var question_template_textarea_element = $(xblockElement).find('textarea[name=question_template]');

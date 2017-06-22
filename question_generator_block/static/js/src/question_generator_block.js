@@ -22,7 +22,8 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
     	$(xblockElement).find('div[name=attempt-number]').text(results['attempt_number']);
     	$(xblockElement).find('div[name=problem-progress]').text(results['point_string']);
     	$(xblockElement).find('input[name=submit-button]').val("Submit")
-    	if (results['submit_disabled'] == 'disabled') {
+
+		if (results['submit_disabled'] == 'disabled') {
     		$(xblockElement).find('input[name=submit-button]').attr('disabled','disabled');
     	}
     	else
@@ -77,6 +78,7 @@ function QuestionGeneratorXBlock(runtime, xblockElement) {
     	
         $(xblockElement).find('input[name=submit-button]').attr('disabled','disabled'); 
         $(xblockElement).find('input[name=submit-button]').val("Submitting")
+
     	var handlerUrl = runtime.handlerUrl(xblockElement, 'student_submit');
     	$.post(handlerUrl, JSON.stringify(data)).success(handleSubmissionResult);
   	});

@@ -27,6 +27,7 @@ class resolver_machine():
         JAVA="java",
         CSHARP="c#",
         Default="none")
+
     def getResolverAddress(self, query):
         if query == self.APIAddress.MATLAB:
             return self.APIAddress.MATLAB
@@ -34,6 +35,7 @@ class resolver_machine():
             return self.APIAddress.NONE
         else:
             return self.APIAddress.NONE
+
     def getResolverURL(self, query):
         if query == self.APIURL.MATLAB:
             return self.APIURL.MATLAB
@@ -41,12 +43,16 @@ class resolver_machine():
             return self.APIURL.NONE
         else:
             return self.APIURL.NONE
+
     def getDefaultAddress(self):
         return self.APIAddress.NONE
+
     def getDefaultURL(self):
         return self.APIURL.NONE
+
     def getDefaultResolver(self):
         return self.NAME.NONE
+
     def syncCall(self, resolver, ansT, ans):
         callback = False
         if resolver == self.NAME.NONE:

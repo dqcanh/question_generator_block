@@ -31,7 +31,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
     """
     Question Generator XBlock
     """
-
+    # define fields and its scope
     display_name = String(
         display_name="Question Generator XBlock",
         help="This name appears in the horizontal navigation at the top of the page.",
@@ -68,6 +68,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         help="Defines when to show the 'Show/Hide Answer' button",
         default=True,
         scope=Scope.settings)
+
     _image_url = String (
         display_name ="image",
         help ="",
@@ -78,18 +79,20 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         display_name = "Resolver Machine",
         help ="",
         default = 'none',
-        scope = Scope.content)
+        scope = Scope.content)  # why this is Scope.content?
     
     _question_template = String (
         display_name = "Question Template",
         help = "",
         default = "Given a = <a> and b = <b>. Calculate the sum, difference of a and b.",
         scope = Scope.settings)
+
     _answer_template = String (
         display_name = "Answer Template",
         help = "Teacher has to fill the answer here!!!",
         default = "x =<a> + <b>",
         scope = Scope.settings)
+
     _variables = Dict (
         display_name = "Variable List",
         help = "",
@@ -111,7 +114,6 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         scope = Scope.settings)
            
 
-    
     xblock_id = None
     newly_created_block = True
     image_url = ""
@@ -216,6 +218,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         # Student not yet submit then we can edit the XBlock
         fragment = Fragment()
         context = {'fields': []}
+
         # Build a list of all the fields that can be edited:
         for field_name in self.editable_fields:
             field = self.fields[field_name]
@@ -308,6 +311,8 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         #evaluation_result = matlab_service.evaluate_matlab_answer(self.matlab_server_url, self.matlab_solver_url, generated_answer, student_answer)
         if evaluation_result == True:
             points_earned = self.max_points
+
+        # save submission and score
         submission = sub_api.create_submission(self.student_item_key, submission_data)
         sub_api.set_score(submission['uuid'], points_earned, self.max_points)
         
@@ -317,6 +322,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         # disable the "Submit" button once the submission attempts reach max_attemps value
         self.attempt_number = submission['attempt_number']
         submit_result['attempt_number'] = self.attempt_number_string
+
         if (self.attempt_number >= self.max_attempts):
             submit_result['submit_disabled'] = 'disabled'
         else:
@@ -363,6 +369,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
         # copy from StudioEditableXBlockMixin (can not call parent method)
         values = {}  # dict of new field values we are updating
         to_reset = []  # list of field names to delete from this XBlock
+
         for field_name in self.editable_fields:
             field = self.fields[field_name]
             if field_name in data['values']:
@@ -372,8 +379,10 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
                     raise JsonHandlerError(400, "Unsupported field type: {}".format(field_name))
             elif field_name in data['defaults'] and field.is_set_on(self):
                 to_reset.append(field_name)
-        self.clean_studio_edits(values)
-        validation = Validation(self.scope_ids.usage_id)
+
+        self.clean_studio_edits(values)                     # TODO: check it out
+        validation = Validation(self.scope_ids.usage_id)    # TODO: check it out
+
         # We cannot set the fields on self yet, because even if validation fails, studio is going to save any changes we
         # make. So we create a "fake" object that has all the field values we are about to set.
         preview_data = FutureFields(
@@ -382,6 +391,7 @@ class QuestionGeneratorXBlock(XBlock, SubmittingXBlockMixin, StudioEditableXBloc
             fallback_obj=self
         )
         self.validate_field_data(validation, preview_data)
+
         if validation:
             for field_name, value in values.iteritems():
                 setattr(self, field_name, value)
